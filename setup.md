@@ -29,6 +29,31 @@ renv::restore()
 
 This will install every package at the exact version recorded in `renv.lock`. No manual package installation is needed beyond this step.
 
+### 4. Download the data
+
+The raw data (~900 MB) is not included in the repository. Download it from Kaggle using the provided setup script.
+
+**4a. Install the Kaggle CLI** (Python required):
+
+```bash
+pip install kaggle
+```
+
+**4b. Get your Kaggle API token:**
+
+1. Log in at [kaggle.com](https://www.kaggle.com)
+2. Go to **Account → API → Create New Token**
+3. Move the downloaded `kaggle.json` to `~/.kaggle/kaggle.json`
+4. Restrict permissions (Linux/macOS): `chmod 600 ~/.kaggle/kaggle.json`
+
+**4c. Run the setup script in R:**
+
+```r
+source("src/00_setup.R")
+```
+
+This downloads and unzips the dataset into `data/raw/`. The script is safe to re-run — it skips the download if the files are already present.
+
 ## Project Structure
 
 ```

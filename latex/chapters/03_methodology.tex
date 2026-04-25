@@ -1,0 +1,59 @@
+% ═════════════════════════════════════════════════════════════════════════════
+\section{Methodology}
+\label{sec:methodology}
+
+\subsection{Hypotheses}
+
+\begin{description}
+  \item[H1] CS2 skin index returns are significantly correlated with Bitcoin
+    returns (market integration hypothesis).
+
+  \item[H2] Bitcoin Granger-causes CS2 skin prices, but not vice versa --
+    motivated by the shared speculative, crypto-adjacent user demographic.
+
+  \item[H3] The CS2 market responds to Bitcoin shocks with a lag of several
+    periods (delay hypothesis).
+
+  \item[H4] The CS2 market exhibits higher volatility than the S\&P 500 but
+    similar volatility clustering patterns to Bitcoin.
+\end{description}
+
+\subsection{Data}
+
+\subsubsection{CS2 Skin Price Index}
+% TODO: Source: Steam Marketplace transaction data (Kieran, Kaggle, CC-BY-NC-SA-4.0).
+% 22,495 items. Filtered to wearable items (weapon skins, knives, gloves).
+% Liquidity filter: drop items with fewer than 2 trades per month in any
+% calendar month.
+% Aggregation: daily VWAP per item, then value-weighted index across all
+% liquid items (weight = trading\_value / sum(trading\_value) per day).
+% Result: one daily CS2 index level series covering 2013--2024.
+
+\subsubsection{Comparison Assets}
+% TODO: S\&P 500, Bitcoin (BTC-USD), Gold (GC=F) via \texttt{quantmod} /
+% Yahoo Finance. Time period aligned to CS2 data. Frequency: daily.
+% All series converted to log returns for analysis.
+
+\subsection{Analytical Pipeline}
+
+\subsubsection{Exploratory Data Analysis}
+% TODO: Time series plots of index levels and log returns.
+% Descriptive statistics (mean, SD, skewness, kurtosis).
+% Correlation matrix. ACF/PACF plots.
+% ADF test for stationarity; all analysis performed on log returns.
+
+\subsubsection{GARCH(1,1) Volatility Modelling}
+% TODO: Fit GARCH(1,1) to CS2, BTC, and S\&P 500 return series.
+% Compare $\alpha + \beta$ (persistence) and unconditional volatility across
+% assets to test H4. Extract conditional volatility series.
+
+\subsubsection{VAR Model and Granger Causality}
+% TODO: VAR($p$) on CS2, BTC, S\&P 500 log returns.
+% Lag order selected via AIC/BIC.
+% Granger causality tests: BTC $\to$ CS2, CS2 $\to$ BTC,
+% S\&P 500 $\to$ CS2 (tests H1 and H2).
+
+\subsubsection{Impulse Response Functions}
+% TODO: Orthogonalised IRF from the estimated VAR.
+% Response of CS2 returns to a 1-SD shock in BTC and S\&P 500.
+% Time horizon 10--20 days; assess speed and persistence of absorption (H3).

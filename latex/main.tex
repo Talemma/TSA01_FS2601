@@ -1,0 +1,120 @@
+\documentclass[12pt, a4paper]{article}
+
+% ─── Packages ────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{abstract}
+
+% ─── Hyperlink styling ───────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = black,
+  citecolor  = black,
+  urlcolor   = black
+}
+
+% ─── Header / Footer ─────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small TSA01\_FS2601}
+\lhead{\small Time Series Analysis in Finance}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ─── Section formatting ──────────────────────────────────────────────────────
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+
+% ─── R code listing style ────────────────────────────────────────────────────
+\lstdefinestyle{Rstyle}{
+  language        = R,
+  basicstyle      = \ttfamily\footnotesize,
+  keywordstyle    = \color{blue},
+  commentstyle    = \color{gray},
+  stringstyle     = \color{orange},
+  numbers         = left,
+  numberstyle     = \tiny\color{gray},
+  breaklines      = true,
+  frame           = single,
+  backgroundcolor = \color{gray!8}
+}
+
+% ─── Bibliography style ──────────────────────────────────────────────────────
+\bibliographystyle{apalike}
+
+% ═════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ─── Title Page ──────────────────────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+
+  {\Large \textbf{Lucerne University of Applied Sciences and Arts}}\\[0.4cm]
+  {\large School of Business}\\[2cm]
+
+  {\LARGE \textbf{Is the CS2 Skin Market Integrated\\[0.3cm]
+  with Traditional and Crypto Financial Markets?\\[0.3cm]
+  A Time Series Analysis}}\\[2cm]
+
+  {\large \textit{Time Series Analysis in Finance (TSA01\_FS2601)}}\\[0.5cm]
+  {\large Spring 2026}\\[2cm]
+
+  \begin{tabular}{ll}
+    \textbf{Authors:}      & Emanuel Lemma \\
+                           & Jakub [Last Name] \\[0.5cm]
+    \textbf{Supervisors:}  & Denis Bieri \\
+                           & Thomas Ankenbrand \\[0.5cm]
+    \textbf{Submitted:}    & 22 May 2026 \\
+  \end{tabular}
+
+  \vfill
+  {\small This paper was submitted in partial fulfilment of the requirements\\
+  for the course TSA01\_FS2601.}
+\end{titlepage}
+
+% ─── Abstract ────────────────────────────────────────────────────────────────
+\newpage
+\begin{abstract}
+\noindent
+% TODO: Write abstract (~150 words) summarising the research question,
+% methodology, key findings, and conclusion.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+% ─── Chapters ────────────────────────────────────────────────────────────────
+\input{chapters/01_introduction}
+\input{chapters/02_literature}
+\input{chapters/03_methodology}
+\input{chapters/04_results}
+\input{chapters/05_conclusion}
+
+% ─── Bibliography ────────────────────────────────────────────────────────────
+\newpage
+\bibliography{references}
+
+% ─── Appendix ────────────────────────────────────────────────────────────────
+\newpage
+\input{chapters/06_appendix}
+
+\end{document}
