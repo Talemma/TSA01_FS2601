@@ -2,19 +2,27 @@
 \section{Introduction}
 \label{sec:introduction}
 
-\subsection{Motivation}
-% TODO: Introduce CS2 skins as virtual cosmetic items with real monetary value
-% traded on the Steam Marketplace (~22,000 items, daily volume in the millions).
-% Highlight their speculative nature and crypto-adjacent user base.
-% Motivate the originality: constructing a price index from raw transaction data
-% and testing whether this alternative asset class is integrated with BTC,
-% S\&P 500, and Gold.
+Counter-Strike 2 (CS2) is one of the most played competitive shooters in the
+world. Since 2013, players have been able to trade purely cosmetic weapon
+modifications --- ``skins'' --- through the Steam Marketplace at freely
+negotiated, real-money prices. Unlike the closed monetisation systems of
+competing titles, Steam operates an open secondary market, making CS2 skins
+an observable and quantifiable asset class. By early 2025, the ecosystem had
+grown to over 22,000 tradeable items with an estimated market value of
+\$4.1~billion \cite{guedefernandez2025ai}. Prior work has found attractive
+risk-adjusted returns and low correlation with traditional assets
+\cite{dobrynskaya2025videogame}, but no study has formally tested market
+integration using a VAR and Granger causality framework on a
+comprehensively constructed price index.
 
-\subsection{Research Question}
+This paper fills that gap. We construct a daily value-weighted CS2 price
+index from raw Steam Marketplace transaction data and ask:
 
-\textit{``Is the CS2 skin market integrated with traditional and crypto financial
-markets, and what is the direction and temporal dynamics of any such
-relationship?''}
+\textit{``Is the CS2 skin market integrated with traditional and crypto
+financial markets, and what is the direction and temporal dynamics of any
+such relationship?''}
 
-\subsection{Structure of the Paper}
-% TODO: One short paragraph outlining the content of Sections 2--5.
+We test this against the S\&P~500, Bitcoin, and Gold --- benchmarks for
+traditional equity, speculative crypto, and safe-haven performance --- using
+EDA, GARCH(1,1) volatility modelling, and a VAR model with Granger causality
+tests.

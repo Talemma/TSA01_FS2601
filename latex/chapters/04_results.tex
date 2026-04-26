@@ -3,34 +3,135 @@
 \label{sec:results}
 
 \subsection{Exploratory Data Analysis}
-% TODO: Descriptive statistics table (mean return, SD, skewness, kurtosis
-% for CS2, BTC, S\&P 500, Gold).
-% Figure: CS2 index level over time (annotate major game updates / events).
-% Figure: log return series for all four assets.
-% ADF test results (stationarity confirmed for log returns).
 
-\subsection{GARCH Volatility Comparison (H4)}
-% TODO: Table of GARCH(1,1) coefficients ($\alpha$, $\beta$, $\alpha+\beta$)
-% for CS2, BTC, S\&P 500.
-% Figure: conditional volatility series overlay.
-% Interpret: does CS2 show higher volatility than S\&P 500?
-% Is clustering persistence similar to BTC? Accept/reject H4.
+Table~\ref{tab:desc_stats} reports descriptive statistics for all four return
+series over the common sample of 2,450 observations. CS2 is the most volatile
+asset at 114.56\% annualised, exceeding Bitcoin (69.87\%), consistent with the
+first part of H3. The correlation matrix (Table~\ref{tab:correlation}) shows
+near-zero contemporaneous correlations between CS2 and all three benchmarks
+($r_{\text{CS2,BTC}} = {-}0.016$, $r_{\text{CS2,SP500}} = 0.000$,
+$r_{\text{CS2,Gold}} = 0.011$), constituting preliminary evidence against H1.
+ADF tests reject the unit root null at the 1\% level for all series; all
+subsequent analyses are performed on log returns without further differencing.
+
+\begin{table}[H]
+\centering
+\caption{Descriptive Statistics --- Daily Log Returns}
+\label{tab:desc_stats}
+\begin{tabular}{lrrrrr}
+\hline
+Asset    & Mean (\%) & Std Dev (\%) & Skewness & Ex.\ Kurtosis & Ann.\ Vol.\ (\%) \\
+\hline
+CS2      & 0.009 & 7.217 & $-$0.37 &  3.82 & 114.56 \\
+S\&P 500 & 0.041 & 1.133 & $-$0.80 & 15.74 &  17.98 \\
+Bitcoin  & 0.203 & 4.401 & $-$0.63 &  9.07 &  69.87 \\
+Gold     & 0.026 & 0.927 & $-$0.06 &  3.77 &  14.71 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Correlation Matrix --- Daily Log Returns}
+\label{tab:correlation}
+\begin{tabular}{lrrrr}
+\hline
+         & CS2      & S\&P 500 & Bitcoin  & Gold  \\
+\hline
+CS2      &  1.000   &  0.000   & $-$0.016 & 0.011 \\
+S\&P 500 &  0.000   &  1.000   &  0.213   & 0.020 \\
+Bitcoin  & $-$0.016 &  0.213   &  1.000   & 0.084 \\
+Gold     &  0.011   &  0.020   &  0.084   & 1.000 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../images/eda/levels.png}
+  \caption{Normalised price levels --- CS2 index, S\&P~500, Bitcoin, and Gold
+    (2013--2024, rebased to 100 at start of common sample; log scale).}
+  \label{fig:levels}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../images/eda/returns.png}
+  \caption{Daily log returns --- CS2 index, S\&P~500, Bitcoin, and Gold
+    (2013--2024). CS2 and Bitcoin exhibit substantially wider return swings than
+    the S\&P~500 and Gold throughout the sample.}
+  \label{fig:returns}
+\end{figure}
+
+\subsection{GARCH Volatility Comparison (H3)}
+\label{subsec:garch}
+
+Table~\ref{tab:garch} reports estimated GARCH(1,1) parameters. H3 is
+\textit{partially supported}. CS2 unconditional volatility (161.88\%) more
+than triples the S\&P~500 (49.70\%), confirming the first part. The persistence
+parameter $\hat{\alpha}+\hat{\beta} = 0.9990$ is identical for CS2 and Bitcoin,
+supporting clustering similarity. However, CS2's ARCH coefficient (0.0151) is
+far lower than Bitcoin's (0.1265): CS2 volatility does not spike sharply after
+individual shocks but persists in long-duration regimes, consistent with the
+Steam Marketplace's slow price-adjustment microstructure.
+
+\begin{table}[H]
+\centering
+\caption{GARCH(1,1) Estimates}
+\label{tab:garch}
+\begin{tabular}{lrrrr}
+\hline
+Asset    & $\hat{\alpha}$ & $\hat{\beta}$ & $\hat{\alpha}+\hat{\beta}$ & Uncond.\ Vol.\ (\%) \\
+\hline
+CS2      & 0.0151 & 0.9839 & 0.9990 & 161.88 \\
+S\&P 500 & 0.1821 & 0.8158 & 0.9979 &  49.70 \\
+Bitcoin  & 0.1265 & 0.8725 & 0.9990 & 337.76 \\
+Gold     & 0.0280 & 0.9642 & 0.9923 &  16.61 \\
+\hline
+\end{tabular}
+\end{table}
 
 \subsection{VAR and Granger Causality (H1, H2)}
-% TODO: Note selected lag order (AIC/BIC).
-% Table: Granger causality $p$-values for all tested directions.
-% Interpret: evidence for market integration? Direction of causality?
-% Accept/reject H1 and H2.
 
-\subsection{Impulse Response Analysis (H3)}
-% TODO: Figure (2 panels): IRF of CS2 to a BTC shock and to an S\&P 500 shock.
-% Interpret: lag length, magnitude, and persistence of the response.
-% Accept/reject H3.
+A VAR(4) model is estimated on the joint system (BIC criterion; AIC suggests
+$p = 9$). Table~\ref{tab:granger} reports Granger causality F-tests; each row
+tests whether the cause variable Granger-causes the \emph{entire remaining
+system jointly}.
+
+\begin{table}[H]
+\centering
+\caption{Granger Causality Tests --- VAR(4)}
+\label{tab:granger}
+\begin{tabular}{lrrl}
+\hline
+Cause variable & F-statistic & $p$-value & Conclusion \\
+\hline
+Bitcoin  & 1.453 & 0.134 & Not significant \\
+S\&P 500 & 1.275 & 0.226 & Not significant \\
+Gold     & 1.353 & 0.181 & Not significant \\
+CS2      & 1.663 & 0.068 & Not significant (borderline) \\
+\hline
+\end{tabular}
+\end{table}
+
+Both H1 and H2 are \textbf{rejected}. None of the three benchmarks Granger-causes
+the system, and the EDA correlations confirm zero contemporaneous co-movement.
+The borderline CS2 signal ($p = 0.068$) runs in the opposite direction to H2's
+prediction, suggesting that any detectable influence flows \emph{from} CS2
+rather than towards it. Together, these results position CS2 as a genuinely
+segmented market whose price dynamics are driven by game-specific factors ---
+patch updates, tournament cycles, case releases --- rather than by macroeconomic
+or crypto forces.
 
 \subsection{Critical Discussion}
-% TODO: Steam Marketplace is a closed ecosystem (transaction costs, withdrawal
-% limits affect price discovery).
-% Survivorship bias: items with no trades are excluded from the index.
-% Liquidity mismatch: CS2 trades 7 days/week, financial markets 5 days/week.
-% Granger causality is predictive, not structural -- does not imply
-% economic causation.
+
+The Steam Marketplace's 15\% transaction fee creates persistent arbitrage
+barriers that partly explain the low co-movement: short-selling skins is
+impossible and round-trip costs are prohibitive. The value-weighted index
+concentrates on high-volume skins, suppressing mean returns relative to an
+equal-weighted benchmark and accounting for the low mean return (0.009\%/day)
+versus \citeauthor{dobrynskaya2025videogame}'s 41\% annual figure
+\cite{dobrynskaya2025videogame}. The September 2023 CS2 engine update may have
+introduced a structural break not captured by the constant-parameter models.
+Finally, the joint Granger specification is conservative; a pairwise CS2--Bitcoin
+VAR would provide a more focused robustness check.

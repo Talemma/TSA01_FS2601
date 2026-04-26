@@ -1,23 +1,40 @@
 % ═════════════════════════════════════════════════════════════════════════════
-\section{Literature Review and Theoretical Background}
+\section{Literature Review}
 \label{sec:literature}
 
-\subsection{Virtual Goods and Digital Asset Markets}
-% TODO: Economics of virtual goods (Castronova 2001; Hamari \& Lehdonvirta 2010).
-% Steam Marketplace as a secondary market.
-% Prior work on CS:GO / CS2 skin pricing and market microstructure.
+The CS2 skin market constitutes a substantial financial asset class. Operating
+through the Steam Marketplace --- an open secondary market with real-currency
+pricing --- it reached an estimated \$4.1~billion in value by early 2025
+\cite{guedefernandez2025ai}. Unlike competing titles that restrict trading to
+developer-set prices, CS2's open market allows supply and demand to determine
+prices, making skins suitable for standard financial analysis
+\cite{zhou2024cs2valorant}. \citeauthor{dobrynskaya2025videogame} document
+average annual returns of 41.2\% with a Sharpe ratio of 0.34 across nearly
+5,000 CS skins from 2013 to 2024 --- exceeding both the US equity market (0.25)
+and gold (0.12) \cite{dobrynskaya2025videogame}. These findings motivate the
+central question of whether the CS2 market operates independently of, or
+co-moves with, mainstream financial assets.
 
-\subsection{Alternative Assets and Market Integration}
-% TODO: Define alternative assets (commodities, collectibles, crypto).
-% Market integration literature: conditions under which non-traditional assets
-% co-move with financial markets. Reference relevant empirical studies.
+Bitcoin serves as the primary speculative comparator. \citeauthor{baur2018bitcoin}
+find that Bitcoin is held predominantly for speculative purposes, with returns
+uncorrelated with traditional asset classes under both normal and stressed market
+conditions \cite{baur2018bitcoin}. \citeauthor{bouri2017hedge} confirm that
+Bitcoin offers minimal hedging properties, with its portfolio value lying in
+diversification rather than risk reduction \cite{bouri2017hedge}. The shared
+demographic between Bitcoin investors and CS2 skin traders --- young, digitally
+native, and risk-tolerant --- motivates the hypothesis that crypto market
+sentiment may Granger-cause skin prices. \citeauthor{akin2024fluctuations},
+using a VAR framework equivalent to the one applied here, find weak but
+statistically detectable interactions between Bitcoin, the S\&P 500, and gold,
+establishing the empirical context against which CS2's behaviour is measured
+\cite{akin2024fluctuations}.
 
-\subsection{Bitcoin as a Speculative Asset}
-% TODO: Bitcoin's dual role as speculative asset vs.\ safe-haven
-% (Baur et al.\ 2018; Bouri et al.\ 2017).
-% Shared speculative user base between crypto and gaming markets
-% -- motivation for H2 (directional causality hypothesis).
-
-\subsection{Granger Causality in Financial Markets}
-% TODO: Brief methodological note on Granger (1969) and VAR-based causality.
-% Cite precedents: crypto--equity causality studies.
+The methodological toolkit draws on three established approaches. Vector
+Autoregression, introduced by \citeauthor{sims1980macroeconomics}, captures
+joint dynamics across multiple time series without imposing a-priori causal
+structure \cite{sims1980macroeconomics}. Granger causality
+\cite{granger1969causal} operationalises directional predictability: $X$
+Granger-causes $Y$ if past values of $X$ improve forecasts of $Y$ beyond
+$Y$'s own history. GARCH(1,1) \cite{bollerslev1986garch} models time-varying
+conditional variance and its clustering properties, enabling cross-asset
+comparison of shock persistence.

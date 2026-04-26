@@ -96,15 +96,16 @@
 
 ### Sources Needed
 
-| Topic | Reference |
-|---|---|
-| Virtual goods economics | Castronova (2001); Hamari & Lehdonvirta (2010) |
-| CS skin market | Search for CS:GO / CS2 skin market papers on Google Scholar |
-| Bitcoin as speculative asset | Baur et al. (2018); Bouri et al. (2017) |
-| Alternative assets & integration | Review paper on alternative asset markets |
-| Granger causality | Granger (1969) — *Econometrica* |
-| GARCH | Bollerslev (1986) — *Journal of Econometrics* |
-| VAR methodology | Sims (1980) — *Econometrica* |
+| Topic | Reference | Status |
+|---|---|---|
+| Index construction methodology | MSCI Inc. (2024); SIX Swiss Exchange AG (2024) | ✅ in references.bib |
+| Virtual goods economics | Castronova (2001); Hamari & Lehdonvirta (2010) | ✅ Hamari in references.bib; Castronova still needed |
+| CS skin market | Dobrynskaya & Strelnikov (2025); Guede-Fernández et al. (2025); Zhou (2024) | ✅ in references.bib |
+| Bitcoin as speculative asset | Baur et al. (2018); Bouri et al. (2017) | ✅ in references.bib |
+| Alternative assets & integration | Akin et al. (2024) — British Actuarial Journal | ✅ in references.bib |
+| Granger causality | Granger (1969) — *Econometrica* | ✅ in references.bib |
+| GARCH | Bollerslev (1986) — *Journal of Econometrics* | ✅ in references.bib |
+| VAR methodology | Sims (1980) — *Econometrica* | ✅ in references.bib |
 
 ---
 
