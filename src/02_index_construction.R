@@ -74,12 +74,6 @@ fwrite(filter_stats, here("data", "processed", "filter_stats.csv"))
 #      = sum(trading_value_i) / sum(qty_i)
 
 
-index <- cs2[quantity > 0, .(
-  index_level  = sum(trading_value) / sum(quantity),
-  n_items      = uniqueN(base_item),
-  total_volume = sum(quantity)
-), by = date]
-
 index <- cs2[, .(
   index_level  = sum(trading_value) / sum(quantity),
   n_items      = uniqueN(base_item),
