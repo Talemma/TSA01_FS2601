@@ -5,4 +5,4 @@
 \contentsline {figure}{\numberline {4}{\ignorespaces Empirical return distributions (histogram) overlaid with a fitted normal curve (red) for all four assets.}}{14}{figure.caption.8}%
 \contentsline {figure}{\numberline {5}{\ignorespaces Distribution of trading frequency per CS2 item (number of days with at least one recorded transaction).}}{15}{figure.caption.10}%
 \contentsline {figure}{\numberline {6}{\ignorespaces GARCH(1,1) conditional volatility (annualised, \%) for all four assets, August 2014 to June 2024.}}{16}{figure.caption.11}%
-\contentsline {figure}{\numberline {7}{\ignorespaces Normal Q-Q plots of standardised GARCH(1,1) residuals for all four assets. Points along the diagonal indicate conformity with the assumed error distribution.}}{17}{figure.caption.12}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Q-Q plots of standardised GARCH(1,1) residuals against the standard normal for all four assets. Systematic tail departures from the diagonal motivate the student-$t$ innovation assumption.}}{17}{figure.caption.12}%
