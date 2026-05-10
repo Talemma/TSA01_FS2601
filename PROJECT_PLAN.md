@@ -1,7 +1,7 @@
 # Project Plan — CS2 Skin Market Integration Study
 
 **Course:** Time Series Analysis in Finance (TSA01_FS2601) — HSLU Spring 2026
-**Team:** Emanuel Lemma & Jakub
+**Team:** Emanuel Lemma & Jakub Holzmann
 **Final submission:** 22 May 2026, 12:15 — Ilias or email to denis.bieri@hslu.ch & thomas.ankenbrand@hslu.ch
 
 ---
@@ -14,12 +14,13 @@
 
 ## Hypotheses
 
-| # | Hypothesis |
-|---|---|
-| H1 | CS2 skin index returns are significantly correlated with Bitcoin returns (market integration) |
-| H2 | Bitcoin Granger-causes CS2 skin prices, but not vice versa |
-| H3 | The CS2 market responds to Bitcoin shocks with a lag of several periods |
-| H4 | CS2 shows higher volatility than S&P 500 but similar clustering patterns to Bitcoin |
+| # | Hypothesis | Outcome |
+|---|---|---|
+| H1 | CS2 skin index returns are significantly correlated with Bitcoin returns (market integration) | **Rejected** — correlations ≈ 0 |
+| H2 | Bitcoin Granger-causes CS2 skin prices, but not vice versa | **Rejected** — no significant Granger causality in either direction; borderline signal (p=0.068) runs CS2→system |
+| H3 | CS2 exhibits higher volatility than S&P 500 but similar volatility clustering to Bitcoin | **Partially supported** — CS2 vol > S&P 500 ✅; persistence equal to Bitcoin ✅; but ARCH dynamics differ (CS2 α̂=0.0151 vs Bitcoin α̂=0.1265) |
+
+> Note: IRF (H3 original) dropped from scope. H3 reassigned to GARCH volatility comparison.
 
 ---
 
@@ -27,43 +28,44 @@
 
 | # | File | Status | Input → Output |
 |---|---|---|---|
-| 0 | `src/00_setup.R` | ✅ done | Kaggle API → `data/raw/items/` (22,495 CSVs) |
+| 0 | `src/00_setup.R` | ✅ done | Kaggle API → `data/raw/items/` (22,446 CSVs) |
 | 1 | `src/01_data_preprocessing.R` | ✅ done | `data/raw/` → `data/processed/cs2_daily.parquet` (35.3M rows) |
-| 2 | `src/02_index_construction.R` | ⏳ next | `cs2_daily.parquet` → `data/processed/cs2_index.parquet` |
-| 3 | `src/03_eda.R` | ❌ pending | `cs2_index.parquet` + quantmod → plots + stats in `images/` |
-| 4 | `src/04_garch.R` | ❌ pending | `cs2_index.parquet` → GARCH results + plots |
-| 5 | `src/05_var_granger.R` | ❌ pending | `cs2_index.parquet` → VAR/Granger results |
-| 6 | `src/06_irf.R` | ❌ pending | VAR model → IRF plots |
+| 2 | `src/02_index_construction.R` | ✅ done | `cs2_daily.parquet` → `cs2_index.parquet` (1,607 items, 3,960 days) + `filter_stats.csv` |
+| 3 | `src/03_eda.R` | ✅ done | `cs2_index.parquet` + quantmod → `images/eda/` + `images/index/` + `returns.parquet` |
+| 4 | `src/04_garch.R` | ✅ done | `returns.parquet` → GARCH estimates + `images/garch/` (incl. `residual_qq.png`) |
+| 5 | `src/05_var_granger.R` | ✅ done | `returns.parquet` → VAR(4) + Granger results + `var_model.rds` + `var_lag_selection.csv` + `var_ljungbox.csv` |
+| 6 | `src/06_irf.R` | 🗑️ deleted — IRF removed from scope | — |
 
-### Script Details
+### Item counts (verified from R output)
+- Raw dataset: **22,446 item variants** across **10,833 base items**
+- After wearable + StatTrak/Souvenir filter: 7,348 variants / 1,638 base items
+- After liquidity filter: **1,607 base items** (31 dropped, 2%)
+- Aligned sample: **2,448 observations** (Gold has 2 fewer trading days)
 
-#### `02_index_construction.R`
-1. Load `cs2_daily.parquet`
-2. Filter to wearables only (`item_category` ∈ `weapon_skin`, `knife`, `glove`)
-3. Liquidity filter: drop any item sold fewer than 2 times in any calendar month
-4. Compute daily value-weighted index level: `sum(price × trading_value) / sum(trading_value)` per day
-5. Save `data/processed/cs2_index.parquet` — one row per day
+---
 
-#### `03_eda.R`
-- Load CS2 index + fetch BTC, S&P 500, Gold via `quantmod`
-- Align to same date range, compute log returns
-- Produce: time series plots, descriptive stats table, correlation matrix, ACF/PACF, ADF tests
-- Save all figures to `images/`
+## Key Results
 
-#### `04_garch.R`
-- Fit GARCH(1,1) on CS2, BTC, S&P 500 returns
-- Compare volatility persistence (α+β) and unconditional volatility across assets (H4)
-- Plot conditional volatility overlay
+### EDA
+- CS2 annualised vol: **114.56%** — exceeds Bitcoin (69.87%)
+- Correlations: CS2–BTC = −0.016, CS2–SP500 = 0.000, CS2–Gold = 0.011 → all ≈ 0
+- All ADF tests reject unit root at 1%
 
-#### `05_var_granger.R`
-- VAR(p) on CS2, BTC, S&P 500 returns; lag selection via AIC/BIC
-- Granger causality tests: BTC→CS2, CS2→BTC, S&P 500→CS2 (H1, H2)
-- Save results table
+### GARCH(1,1) — student-t innovations
+| Asset | α̂ | β̂ | α̂+β̂ | Uncond. Vol. |
+|---|---|---|---|---|
+| CS2 | 0.0151 | 0.9839 | 0.9990 | 161.88% |
+| S&P 500 | 0.1821 | 0.8158 | 0.9979 | 49.70% |
+| Bitcoin | 0.1265 | 0.8725 | 0.9990 | 337.76% |
+| Gold | 0.0280 | 0.9642 | 0.9923 | 16.61% |
 
-#### `06_irf.R`
-- Orthogonalised IRF from VAR model
-- Response of CS2 to 1-SD shock in BTC and S&P 500 (H3)
-- Save IRF plot
+### VAR(4) / Granger causality (BIC lag selection)
+| Cause | F | p | Result |
+|---|---|---|---|
+| Bitcoin → system | 1.453 | 0.134 | Not significant |
+| S&P 500 → system | 1.275 | 0.226 | Not significant |
+| Gold → system | 1.353 | 0.181 | Not significant |
+| CS2 → system | 1.663 | 0.068 | Borderline, not significant at 5% |
 
 ---
 
@@ -71,63 +73,63 @@
 
 | Item | Status |
 |---|---|
-| Document structure + subsections | ✅ done |
-| Title page | ✅ done (Jakub's last name missing) |
-| Abstract (~150 words) | ❌ write after results |
-| 1. Introduction | ❌ write |
-| 2. Literature Review | ❌ write + sources needed |
-| 3. Methodology | ❌ write |
-| 4. Results & Discussion | ❌ write after scripts done |
-| 5. Conclusion | ❌ write after results |
-| 6. Appendix | ❌ fill after scripts done |
-| `references.bib` | ❌ find and add sources |
+| Document structure | ✅ done |
+| Title page | ✅ done — Emanuel Lemma & Jakub Holzmann |
+| Abstract | ✅ done |
+| Table of Contents | ✅ done |
+| List of Figures | ✅ done (auto-generated) |
+| List of Tables | ✅ done (auto-generated) |
+| List of Abbreviations + Glossary | ✅ done — `chapters/07_abbreviations.tex` (12 abbr. + 9 glossary terms) |
+| 1. Introduction | ✅ done |
+| 2. Literature Review | ✅ done |
+| 3. Methodology | ✅ done |
+| 4. Results & Discussion | ✅ done |
+| 5. Conclusion | ✅ done |
+| 6. Appendix | ✅ done — EDA plots, filter funnel, GARCH diagnostics, VAR diagnostics, full R code (scripts 01–05) |
+| Declaration of Authorship | ✅ done — `chapters/08_declaration.tex` |
+| `references.bib` | ✅ done — 12 entries |
 
-### Page Budget (5 pages total)
+### Branch & build status
+- Branch: `appendix-and-frontmatter` — pushed to remote, **not yet merged to main**
+- Latest commit: `945211e`
+- Compiled PDF: **29 pages**, zero errors
+- All numerical errors and interpretations reviewed and fixed (multi-agent audit)
+
+### Page Budget (5 pages main body)
 
 | Section | Target |
 |---|---|
 | 1. Introduction | ~0.5 pages |
 | 2. Literature Review | ~0.75 pages |
-| 3. Methodology | ~1.25 pages |
+| 3. Methodology | ~0.8 pages |
 | 4. Results & Discussion | ~2.0 pages |
 | 5. Conclusion | ~0.5 pages |
 
-> Figures count toward the 5 pages — max 3–4 figures in the main body, rest in appendix.
-
-### Sources Needed
-
-| Topic | Reference | Status |
-|---|---|---|
-| Index construction methodology | MSCI Inc. (2024); SIX Swiss Exchange AG (2024) | ✅ in references.bib |
-| Virtual goods economics | Castronova (2001); Hamari & Lehdonvirta (2010) | ✅ Hamari in references.bib; Castronova still needed |
-| CS skin market | Dobrynskaya & Strelnikov (2025); Guede-Fernández et al. (2025); Zhou (2024) | ✅ in references.bib |
-| Bitcoin as speculative asset | Baur et al. (2018); Bouri et al. (2017) | ✅ in references.bib |
-| Alternative assets & integration | Akin et al. (2024) — British Actuarial Journal | ✅ in references.bib |
-| Granger causality | Granger (1969) — *Econometrica* | ✅ in references.bib |
-| GARCH | Bollerslev (1986) — *Journal of Econometrics* | ✅ in references.bib |
-| VAR methodology | Sims (1980) — *Econometrica* | ✅ in references.bib |
+> Title page, ToC, bibliography, and appendix do not count toward the 5-page limit.
 
 ---
 
 ## Presentation (4–5 slides, 5 minutes)
 
+**Status: ❌ not started**
+
 | Slide | Content |
 |---|---|
 | 1 | Research question + motivation |
-| 2 | Hypotheses H1–H4 |
-| 3 | Data & methodology (CS2 index + pipeline) |
-| 4 | Key results (GARCH, Granger, IRF) |
-| 5 | Conclusion + limitations |
+| 2 | Data & index construction (CS2 value-weighted index, 1,607 items) |
+| 3 | Methodology (EDA → GARCH → VAR/Granger) |
+| 4 | Key results (H1–H3 outcomes, GARCH table, Granger table) |
+| 5 | Conclusion + limitations + future work |
 
 ---
 
 ## Deliverables Checklist
 
-- [ ] Paper (PDF, 5 pages)
-- [ ] Presentation (slides or R script)
-- [ ] R scripts + processed data files
+- [ ] Paper (PDF, 5 pages) — content complete on `appendix-and-frontmatter`; merge to main when Jakub has reviewed
+- [ ] Presentation (slides) — not started
+- [x] R scripts — all 5 scripts done and committed
 - [ ] Team agreement
-- [ ] Submit before **22 May 2026, 12:15**
+- **Submit:** before **22 May 2026, 12:15**
 
 ---
 
@@ -135,7 +137,13 @@
 
 | File | Status | Description |
 |---|---|---|
-| `data/raw/items/` | ✅ | 22,495 item CSVs from Steam Marketplace |
+| `data/raw/items/` | ✅ | 22,446 item CSVs from Steam Marketplace |
 | `data/raw/name_conversion_table.csv` | ✅ | URL-encoded → decoded item names |
+| `data/raw/cs_skins_only.csv` | ✅ | Jakub's rarity mapping file |
 | `data/processed/cs2_daily.parquet` | ✅ | 35.3M rows, all items, daily VWAP, enriched |
-| `data/processed/cs2_index.parquet` | ❌ | Daily CS2 index level (output of script 02) |
+| `data/processed/cs2_index.parquet` | ✅ | Daily value-weighted CS2 index (3,960 days, 1,607 base items) |
+| `data/processed/returns.parquet` | ✅ | Aligned log returns for CS2, S&P 500, BTC, Gold (2,448 obs) |
+| `data/processed/filter_stats.csv` | ✅ | Item counts at each filter stage (used in appendix) |
+| `data/processed/var_model.rds` | ✅ | Fitted VAR(4) object |
+| `data/processed/var_lag_selection.csv` | ✅ | BIC/AIC/HQ/FPE lag criteria (used in appendix) |
+| `data/processed/var_ljungbox.csv` | ✅ | Ljung-Box residual test results (used in appendix) |
