@@ -20,11 +20,12 @@ Three testable hypotheses are derived from the literature:
 \subsection{Data}
 
 CS2 skin transaction data are sourced from a publicly available Kaggle dataset
-(CC-BY-NC-SA 4.0) containing Steam Marketplace records for 22,495 items from
-August 2013 to June 2024. The sample is restricted to wearable item categories
-(weapon skins, knives, gloves) and StatTrak variants are excluded. A liquidity
-filter drops any item recording fewer than two transactions in any calendar
-month \cite{six2024indexcriteria}, reducing the sample to 1,607 liquid items.
+(CC-BY-NC-SA 4.0) containing Steam Marketplace records for 22,446 item
+variants (10,833 distinct base items) spanning August 2013 to June 2024. The
+sample is restricted to wearable item categories (weapon skins, knives, gloves)
+and StatTrak variants are excluded. A liquidity filter drops any item recording
+fewer than two transactions in any calendar month
+\cite{six2024indexcriteria}, reducing the sample to 1,607 liquid base items.
 The daily CS2 index level is:
 
 \begin{equation}
@@ -32,22 +33,24 @@ The daily CS2 index level is:
   \label{eq:index}
 \end{equation}
 
-where $p_{it}$ is the volume-weighted average price of item $i$ on day $t$ and
-$v_{it}$ is its trading volume. This value-weighted aggregation mirrors
-market-capitalisation weighting in equity indices \cite{msci2024indexconstruction},
-ensuring that heavily traded skins drive the index level. The index spans 3,960
-trading days. Daily log returns for the S\&P~500 (\texttt{\^{}GSPC}), Bitcoin
-(\texttt{BTC-USD}), and Gold (\texttt{GC=F}) are retrieved via
-\texttt{quantmod}; all four series are aligned to a common sample of 2,450
-observations.
+where $p_{it}$ is the item-level volume-weighted average price across wear
+conditions on day $t$ and $v_{it}$ is the corresponding total daily trading
+volume. This value-weighted aggregation mirrors market-capitalisation weighting
+in equity indices \cite{msci2024indexconstruction}, ensuring that heavily traded
+skins drive the index level. The index spans 3,960 trading days. Daily log
+returns for the S\&P~500 (\texttt{\^{}GSPC}), Bitcoin (\texttt{BTC-USD}), and
+Gold (\texttt{GC=F}) are retrieved via \texttt{quantmod}. The four series are
+aligned via inner join on common trading days, yielding 2,448 observations
+(September 2014 to June 2024) used in all multivariate analyses.
 
 \subsection{Analytical Pipeline}
 
 Exploratory data analysis covers descriptive statistics, a contemporaneous
-correlation matrix, and Augmented Dickey-Fuller tests to confirm stationarity
-of log returns. A GARCH(1,1) model with student-$t$ innovations is then fitted
-to each return series to compare unconditional volatility and shock persistence
-across assets (H3). Finally, a VAR($p$) model is estimated on the joint system
-with the lag order selected by BIC; Granger causality is tested via F-tests on
-jointly excluded lag coefficients, covering both directions between each
-benchmark and CS2 (H1, H2).
+Pearson correlation matrix (H1), and Augmented Dickey-Fuller tests with BIC
+lag selection and a constant term to confirm stationarity of log returns. A
+GARCH(1,1) model with student-$t$ innovations is then fitted to each return
+series to compare unconditional volatility and shock persistence across assets
+(H3). Finally, a VAR($p$) model is estimated on the joint system with the lag
+order selected by BIC; Granger causality is tested via F-tests on jointly
+excluded lag coefficients in both directions between each benchmark and CS2
+(H2).

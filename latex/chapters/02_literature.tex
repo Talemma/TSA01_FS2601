@@ -2,7 +2,7 @@
 \section{Literature Review}
 \label{sec:literature}
 
-The CS2 skin market constitutes a substantial financial asset class. Operating
+The CS2 skin market has emerged as a candidate financial asset class. Operating
 through the Steam Marketplace --- an open secondary market with real-currency
 pricing --- it reached an estimated \$4.1~billion in value by early 2025
 \cite{guedefernandez2025ai}. Unlike competing titles that restrict trading to
@@ -23,7 +23,10 @@ Bitcoin offers minimal hedging properties, with its portfolio value lying in
 diversification rather than risk reduction \cite{bouri2017hedge}. The shared
 demographic between Bitcoin investors and CS2 skin traders --- young, digitally
 native, and risk-tolerant --- motivates the hypothesis that crypto market
-sentiment may Granger-cause skin prices. \citeauthor{akin2024fluctuations},
+sentiment may Granger-cause skin prices. The most plausible transmission
+mechanism is a wealth channel: rising Bitcoin prices increase the disposable
+income of the crypto-adjacent gamer demographic, stimulating demand for CS2
+skins and potentially driving prices upward with a short lag. \citeauthor{akin2024fluctuations},
 using a VAR framework equivalent to the one applied here, find weak but
 statistically detectable interactions between Bitcoin, the S\&P 500, and gold,
 establishing the empirical context against which CS2's behaviour is measured
@@ -33,8 +36,8 @@ The methodological toolkit draws on three established approaches. Vector
 Autoregression, introduced by \citeauthor{sims1980macroeconomics}, captures
 joint dynamics across multiple time series without imposing a-priori causal
 structure \cite{sims1980macroeconomics}. Granger causality
-\cite{granger1969causal} operationalises directional predictability: $X$
-Granger-causes $Y$ if past values of $X$ improve forecasts of $Y$ beyond
-$Y$'s own history. GARCH(1,1) \cite{bollerslev1986garch} models time-varying
+\cite{granger1969causal} operationalises directional predictability in a
+linear framework: $X$ Granger-causes $Y$ if past values of $X$ improve
+forecasts of $Y$ beyond what $Y$'s own history provides. GARCH(1,1) \cite{bollerslev1986garch} models time-varying
 conditional variance and its clustering properties, enabling cross-asset
 comparison of shock persistence.

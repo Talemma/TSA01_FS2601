@@ -15,12 +15,13 @@
 \end{figure}
 
 The ACF plots confirm two key properties of the return series.
-First, the ACF of log returns shows no significant autocorrelation at any lag
-for any asset, consistent with the weak-form efficiency hypothesis and
-supporting the use of log returns as the primary input to all models.
-Second, the ACF of squared returns reveals significant, slowly decaying
-autocorrelation for all assets, a signature of ARCH effects and the empirical
-motivation for the GARCH specification.
+First, the ACF of log returns shows no significant linear autocorrelation at
+any lag for any asset --- a necessary condition for the absence of exploitable
+linear predictability in returns. (Note: the VAR(4) residuals for CS2 do
+reveal remaining structure not visible in the raw ACF; see Table~\ref{tab:ljungbox}
+for details.) Second, the ACF of squared returns reveals significant, slowly
+decaying autocorrelation for all assets, a hallmark of ARCH effects and the
+empirical motivation for the GARCH specification.
 CS2 squared returns exhibit noticeably slower decay than Bitcoin and the
 S\&P~500, indicating that CS2 volatility shocks persist in long regimes rather
 than dissipating quickly --- consistent with the low ARCH coefficient
@@ -127,21 +128,24 @@ microstructure.
 \begin{figure}[H]
   \centering
   \includegraphics[width=\linewidth]{../images/garch/residual_qq.png}
-  \caption{Normal Q-Q plots of standardised GARCH(1,1) residuals for all four
-    assets. Points along the diagonal indicate conformity with the assumed error
-    distribution.}
+  \caption{Q-Q plots of standardised GARCH(1,1) residuals against the standard
+    normal for all four assets. Systematic tail departures from the diagonal
+    motivate the student-$t$ innovation assumption.}
   \label{fig:residual_qq}
 \end{figure}
 
-Figure~\ref{fig:residual_qq} assesses GARCH model adequacy via Q-Q plots of
-standardised residuals against the standard normal. All four assets display
-heavier tails than the normal distribution (points diverge upward and downward
-at the extremes), confirming that the student-$t$ innovation assumption is
-appropriate. The central regions of all four plots track closely along the
-diagonal, indicating that GARCH(1,1) successfully captures the conditional mean
-dynamics and that residual departures are concentrated in the extreme tails ---
-a pattern expected under fat-tailed distributions and consistent with the
-degrees-of-freedom estimates in the rugarch output.
+Figure~\ref{fig:residual_qq} plots standardised GARCH(1,1) residuals against
+the standard normal quantiles. The plots are not an adequacy check against the
+fitted student-$t$ distribution; rather, they serve as a diagnostic showing
+\emph{why} the Gaussian assumption is inappropriate and why the student-$t$
+specification was chosen. All four assets exhibit systematic heavy-tail
+departures (points fan above the upper diagonal and below the lower diagonal),
+confirming the fat-tailed nature of standardised residuals. The central mass of
+each distribution tracks closely along the diagonal, indicating that
+GARCH(1,1) successfully removes the conditional mean structure and that the
+residual non-normality is concentrated in the tails, precisely where the
+student-$t$ distribution provides additional flexibility relative to the
+Gaussian.
 
 % ─── A.4 VAR Diagnostics ─────────────────────────────────────────────────────
 \subsection{VAR Diagnostics}
@@ -210,12 +214,17 @@ trading patterns likely contributes.
 
 These findings have two implications for the main analysis. First, the AIC's
 preferred order of $p = 9$ would reduce residual autocorrelation but at the cost
-of 80 additional parameters, raising degrees-of-freedom concerns and multicollinearity.
-Second, the Granger causality conclusions are not materially affected: the tests
-found no significant predictive power from any benchmark to CS2 or vice versa,
-and residual misspecification would generally inflate standard errors, making
-rejections more conservative --- if anything, a better-fitting model would be
-even less likely to find significance.
+of 80 additional parameters, raising degrees-of-freedom concerns and
+multicollinearity risks with $N = 2{,}444$ effective observations. Second, the
+Granger causality conclusions are not materially affected: the tests found no
+significant predictive power from any benchmark to CS2 or vice versa, and
+residual misspecification of this type generally inflates standard errors,
+making it harder to reject the null of no causality --- if anything, a
+better-specified model would be even less likely to find significance. This
+argument addresses test size rather than coefficient bias; a higher-lag VAR or
+an ARMA-augmented specification for CS2 would be needed to fully resolve the
+residual autocorrelation, and constitutes a natural direction for future
+work.
 
 % ─── A.5 R Code ──────────────────────────────────────────────────────────────
 \subsection{R Code Excerpts}
