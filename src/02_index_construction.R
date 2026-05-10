@@ -22,6 +22,8 @@ LIQUIDITY_MIN    <- 2L   # minimum trades per calendar month
 
 cs2 <- as.data.table(read_parquet(IN_FILE))
 
+head(cs2)
+
 message(sprintf("Loaded %s rows, %s items",
                 format(nrow(cs2), big.mark = ","),
                 format(uniqueN(cs2$item_name), big.mark = ",")))
@@ -52,6 +54,13 @@ message(sprintf("After liquidity filter:  %s rows, %s base_items",
 # ── Step 3: Value-weighted index ──────────────────────────────────────────────
 # I_t = sum(price_i * qty_i) / sum(qty_i)
 #      = sum(trading_value_i) / sum(qty_i)
+
+
+index <- cs2[quantity > 0, .(
+  index_level  = sum(trading_value) / sum(quantity),
+  n_items      = uniqueN(base_item),
+  total_volume = sum(quantity)
+), by = date]
 
 index <- cs2[, .(
   index_level  = sum(trading_value) / sum(quantity),

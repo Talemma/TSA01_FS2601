@@ -16,6 +16,7 @@ library(ggplot2)
 library(patchwork)
 library(quantmod)
 library(tseries)
+library(data.table)
 
 dir.create(here("images", "eda"), showWarnings = FALSE, recursive = TRUE)
 
@@ -166,3 +167,185 @@ message("\nAll plots saved to images/eda/")
 
 write_parquet(ret, here("data", "processed", "returns.parquet"))
 message("Saved aligned returns: data/processed/returns.parquet")
+
+
+# ── Hist. Plots ───────────────────────────────────────────────────────────────
+
+
+# Read parquet
+cs2 <- as.data.table(read_parquet(here("data/processed/cs2_daily.parquet")))
+
+# Aggregate total quantity per item
+item_volume <- cs2[, .(total_quantity = sum(quantity, na.rm = TRUE)), by = item_name]
+
+# Histogram
+ggplot(item_volume, aes(x = total_quantity)) +
+  geom_histogram(bins = nclass.FD(log10(item_volume$total_quantity)), fill = "steelblue", color = "white") +
+  scale_x_log10(labels = scales::comma) +
+  labs(
+    title = "Distribution of Total Sales Quantity per CS2 Item",
+    x = "Total Quantity Sold (log scale)",
+    y = "Number of Items"
+  ) +
+  theme_minimal()
+
+
+# ── Index Exploration Plots ───────────────────────────────────────────────────
+
+dir.create(here("images", "index"), showWarnings = FALSE, recursive = TRUE)
+
+cs2_raw <- as.data.table(read_parquet(here("data/processed/cs2_daily.parquet")))
+
+# ── 1. Total Sales Quantity Distribution ──────────────────────────────────────
+
+item_volume <- cs2_raw[, .(total_quantity = sum(quantity, na.rm = TRUE)), by = item_name]
+
+p_qty <- ggplot(item_volume, aes(x = total_quantity)) +
+  geom_histogram(bins = nclass.FD(log10(item_volume$total_quantity)),
+                 fill = "steelblue", color = "white") +
+  scale_x_log10(labels = scales::comma) +
+  labs(
+    title = "Distribution of Total Sales Quantity per CS2 Item",
+    x     = "Total Quantity Sold (log scale)",
+    y     = "Number of Items"
+  ) +
+  theme_minimal()
+
+ggsave(here("images", "index", "qty_distribution.png"),
+       p_qty, width = 10, height = 5, dpi = 150)
+
+# ── 2. Average Price Distribution (log scale) ─────────────────────────────────
+
+item_price <- cs2_raw[, .(avg_price = mean(price, na.rm = TRUE)), by = item_name]
+
+p_price_log <- ggplot(item_price, aes(x = avg_price)) +
+  geom_histogram(bins = nclass.FD(log10(item_price$avg_price)),
+                 fill = "steelblue", color = "white") +
+  scale_x_log10(labels = scales::comma) +
+  labs(
+    title = "Distribution of Average Price per CS2 Item (log scale)",
+    x     = "Average Price in USD (log scale)",
+    y     = "Number of Items"
+  ) +
+  theme_minimal()
+
+ggsave(here("images", "index", "price_distribution_log.png"),
+       p_price_log, width = 10, height = 5, dpi = 150)
+
+# ── 3. Average Price Distribution (capped at 99th percentile) ─────────────────
+
+p99 <- quantile(item_price$avg_price, 0.99)
+p50 <- quantile(item_price$avg_price, 0.50)
+
+p_price_capped <- ggplot(item_price, aes(x = avg_price)) +
+  geom_histogram(bins = 100, fill = "steelblue", color = "white") +
+  coord_cartesian(xlim = c(0, p99)) +
+  geom_vline(xintercept = p50, color = "red", linetype = "dashed") +
+  annotate("text", x = p50 + 20, y = Inf, vjust = 2,
+           label = paste0("Median: $", round(p50, 2)),
+           color = "red", size = 3.5) +
+  labs(
+    title = "Distribution of Average Price per CS2 Item (capped at 99th percentile)",
+    x     = "Average Price in USD",
+    y     = "Number of Items"
+  ) +
+  theme_minimal()
+
+ggsave(here("images", "index", "price_distribution_capped.png"),
+       p_price_capped, width = 10, height = 5, dpi = 150)
+
+# ── 4. Price vs Volume Scatterplot ────────────────────────────────────────────
+
+item_summary <- cs2_raw[, .(
+  avg_price      = mean(price, na.rm = TRUE),
+  total_quantity = sum(quantity, na.rm = TRUE)
+), by = item_name]
+
+p_scatter <- ggplot(item_summary, aes(x = total_quantity, y = avg_price)) +
+  geom_point(alpha = 0.3, size = 0.8, color = "steelblue") +
+  scale_x_log10(labels = scales::comma) +
+  scale_y_log10(labels = scales::comma) +
+  labs(
+    title = "Price vs Volume per CS2 Item",
+    x     = "Total Quantity Sold (log scale)",
+    y     = "Average Price in USD (log scale)"
+  ) +
+  theme_minimal()
+
+ggsave(here("images", "index", "price_vs_volume.png"),
+       p_scatter, width = 10, height = 5, dpi = 150)
+
+# ── 5. Trading Frequency Distribution ────────────────────────────────────────
+
+item_frequency <- cs2_raw[quantity > 0, .(trading_days = .N), by = item_name]
+
+p_freq <- ggplot(item_frequency, aes(x = trading_days)) +
+  geom_histogram(bins = 100, fill = "steelblue", color = "white") +
+  scale_x_log10(labels = scales::comma) +
+  geom_vline(xintercept = 264, color = "red", linetype = "dashed") +
+  annotate("text", x = 320, y = Inf, vjust = 2,
+           label = "Current filter (264 days)",
+           color = "red", size = 3.5) +
+  labs(
+    title = "Distribution of Trading Frequency per CS2 Item",
+    x     = "Number of Days with Transactions (log scale)",
+    y     = "Number of Items"
+  ) +
+  theme_minimal()
+
+ggsave(here("images", "index", "trading_frequency.png"),
+       p_freq, width = 10, height = 5, dpi = 150)
+
+# ── 6. Strict vs Relaxed Index Comparison ────────────────────────────────────
+
+cs2_strict  <- as.data.table(read_parquet(here("data/processed/cs2_index.parquet")))
+
+# Rebuild relaxed index
+cs2_raw[, month := format(date, "%Y-%m")]
+monthly <- cs2_raw[item_category %in% c("weapon_skin", "knife", "glove") &
+                     !is_stattrak & !is_souvenir,
+                   .(monthly_qty = sum(quantity)), by = .(base_item, month)]
+
+monthly_summary <- monthly[, .(
+  months_total  = .N,
+  months_liquid = sum(monthly_qty >= 2L)
+), by = base_item]
+
+illiquid_relaxed <- monthly_summary[months_liquid / months_total < 0.90, base_item]
+
+cs2_relaxed_raw <- cs2_raw[
+  item_category %in% c("weapon_skin", "knife", "glove") &
+    !is_stattrak & !is_souvenir &
+    !base_item %in% illiquid_relaxed]
+
+cs2_relaxed <- cs2_relaxed_raw[quantity > 0, .(
+  index_level = sum(trading_value) / sum(quantity)
+), by = date]
+
+# Combine and normalise
+both <- rbindlist(list(
+  cs2_strict[,  .(date, index_level, variant = "Strict (100%)")],
+  cs2_relaxed[, .(date, index_level, variant = "Relaxed (90%)")]
+))
+setorder(both, variant, date)
+both[, index_normalised := index_level / first(index_level) * 100, by = variant]
+
+p_index <- ggplot(both, aes(x = date, y = index_normalised, color = variant)) +
+  geom_line(linewidth = 0.6, alpha = 0.8) +
+  scale_color_manual(values = c("Strict (100%)" = "steelblue",
+                                "Relaxed (90%)" = "tomato")) +
+  labs(
+    title    = "CS2 Index — Strict vs Relaxed Liquidity Filter",
+    subtitle = "Both normalised to 100 at start of sample",
+    x        = NULL,
+    y        = "Index Level (base = 100)",
+    color    = "Filter"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+ggsave(here("images", "index", "index_comparison.png"),
+       p_index, width = 10, height = 5, dpi = 150)
+
+message("All index plots saved to images/index/")
+  
