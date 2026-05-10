@@ -24,6 +24,11 @@ lag_select <- VARselect(var_data, lag.max = 10, type = "const")
 message("\n-- Lag Selection ----------------------------------------------------------------")
 print(lag_select$selection)
 
+# Save lag selection criteria table for appendix
+lag_table <- as.data.table(t(lag_select$criteria), keep.rownames = "Lag")
+lag_table[, Lag := as.integer(Lag)]
+fwrite(lag_table, here("data", "processed", "var_lag_selection.csv"))
+
 p_aic <- lag_select$selection["AIC(n)"]
 p_bic <- lag_select$selection["SC(n)"]
 message(sprintf("\nAIC suggests p = %d | BIC suggests p = %d", p_aic, p_bic))
@@ -73,3 +78,22 @@ print(granger_results)
 
 saveRDS(var_model, here("data", "processed", "var_model.rds"))
 message("\nSaved: data/processed/var_model.rds")
+
+# ── Ljung-Box residual diagnostics ────────────────────────────────────────────
+
+resid_mat <- residuals(var_model)
+asset_labels <- c(r_cs2 = "CS2", r_sp500 = "S&P 500", r_btc = "Bitcoin", r_gold = "Gold")
+
+lb_results <- rbindlist(lapply(colnames(resid_mat), function(col) {
+  test <- Box.test(resid_mat[, col], lag = 10, type = "Ljung-Box")
+  data.table(Asset     = asset_labels[col],
+             Q_stat    = round(test$statistic, 3),
+             p_value   = round(test$p.value, 4),
+             Df        = test$parameter)
+}))
+
+message("\n-- Ljung-Box Residual Tests (lag = 10) ------------------------------------------")
+print(lb_results)
+
+fwrite(lb_results, here("data", "processed", "var_ljungbox.csv"))
+message("Saved: data/processed/var_ljungbox.csv")

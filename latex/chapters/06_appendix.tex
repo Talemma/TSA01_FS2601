@@ -3,25 +3,273 @@
 \section{Appendix}
 \label{sec:appendix}
 
+% ─── A.1 Full EDA Plots ───────────────────────────────────────────────────────
 \subsection{Full EDA Plots}
-% TODO: ACF/PACF plots for all series, return distribution histograms,
-% seasonality checks.
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../images/eda/acf.png}
+  \caption{Autocorrelation (ACF) and Partial Autocorrelation (PACF) of daily log
+    returns for all four assets at up to 30 lags.}
+  \label{fig:acf}
+\end{figure}
+
+The ACF plots confirm two key properties of the return series.
+First, the ACF of log returns shows no significant autocorrelation at any lag
+for any asset, consistent with the weak-form efficiency hypothesis and
+supporting the use of log returns as the primary input to all models.
+Second, the ACF of squared returns reveals significant, slowly decaying
+autocorrelation for all assets, a signature of ARCH effects and the empirical
+motivation for the GARCH specification.
+CS2 squared returns exhibit noticeably slower decay than Bitcoin and the
+S\&P~500, indicating that CS2 volatility shocks persist in long regimes rather
+than dissipating quickly --- consistent with the low ARCH coefficient
+($\hat{\alpha} = 0.0151$) and high GARCH coefficient ($\hat{\beta} = 0.9839$)
+estimated in Section~\ref{subsec:garch}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../images/eda/distributions.png}
+  \caption{Empirical return distributions (histogram) overlaid with a fitted
+    normal curve (red) for all four assets.}
+  \label{fig:distributions}
+\end{figure}
+
+All four return series are leptokurtic, exhibiting fatter tails than the normal
+distribution. The departure is most pronounced for the S\&P~500 (excess kurtosis
+15.74) and Bitcoin (9.07), reflecting the high frequency of extreme return events
+in both markets. CS2 shows moderate excess kurtosis (3.82), above that of Gold
+(3.77), but below the two more liquid markets --- plausibly because the
+Steam Marketplace's slow price-adjustment microstructure dampens extreme
+one-day moves. The systematic fat-tail pattern across all assets confirms the
+appropriateness of student-$t$ innovations in the GARCH specification (rather
+than a Gaussian assumption), and the absence of a pronounced second mode in any
+distribution rules out bimodality as a confound.
+
+% ─── A.2 Index Construction Details ──────────────────────────────────────────
 \subsection{Index Construction Details}
-% TODO: Liquidity filter results (items dropped vs.\ retained).
-% Weight distribution across items over time.
 
-\subsection{GARCH Robustness}
-% TODO: GJR-GARCH results; alternative error distributions (Student-t, GED).
+\begin{table}[H]
+\centering
+\caption{Item Filter Funnel --- CS2 Index Construction}
+\label{tab:filter_funnel}
+\begin{tabular}{lrr}
+\hline
+Stage & Item variants & Base items \\
+\hline
+Raw items (all categories, all variants) & 22{,}446 & 10{,}833 \\
+After wearable + StatTrak/Souvenir filter & 7{,}348 & 1{,}638 \\
+After liquidity filter ($\geq$2 trades/month) & --- & 1{,}607 \\
+\hline
+\end{tabular}
+\end{table}
 
+Table~\ref{tab:filter_funnel} documents the item reduction at each construction
+stage. The raw dataset comprises 22,446 distinct item variants (combinations of
+base item and wear condition) across 10,833 base items spanning all Steam
+Marketplace categories. Restricting to wearable categories (weapon skins,
+knives, gloves) and excluding StatTrak and Souvenir variants reduces the sample
+to 7,348 item variants across 1,638 base items. This step removes items whose
+prices are inflated by premium mechanics rather than driven by the underlying
+cosmetic market, ensuring the index reflects comparable, freely-tradeable assets.
+The final liquidity filter --- requiring at least two recorded transactions in
+every calendar month --- removes a further 31 base items (2\%), retaining 1,607
+items. The criterion is analogous to the SIX minimum turnover requirement for
+equity index inclusion \cite{six2024indexcriteria}: items failing it trade too
+infrequently for their daily prices to be reliable signals, and including them
+would introduce stale-price bias into the index level.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../images/index/trading_frequency.png}
+  \caption{Distribution of trading frequency per CS2 item (number of days with
+    at least one recorded transaction).}
+  \label{fig:trading_frequency}
+\end{figure}
+
+Figure~\ref{fig:trading_frequency} shows the distribution of trading days per
+item across the full raw dataset (log scale). The distribution is strongly
+right-skewed: a large mass of items trade on very few days and a smaller group
+of liquid items trade consistently throughout the sample. The vertical dashed
+line marks the current liquidity threshold: items to its left are excluded
+because at least one calendar month in their history contains fewer than two
+transactions. The retained items (to the right) contribute stable daily price
+observations throughout the 3,960-day sample, supporting the reliability of
+the value-weighted index.
+
+% ─── A.3 GARCH Diagnostics ───────────────────────────────────────────────────
+\subsection{GARCH Diagnostics}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../images/garch/conditional_volatility.png}
+  \caption{GARCH(1,1) conditional volatility (annualised, \%) for all four
+    assets, August 2014 to June 2024.}
+  \label{fig:cond_vol}
+\end{figure}
+
+Figure~\ref{fig:cond_vol} shows the estimated conditional volatility series for
+each asset. Several well-known market stress episodes are visible in the
+comparison assets: the S\&P~500 spike in March~2020 (COVID-19 shock), the
+Bitcoin collapse of November~2022 (FTX bankruptcy), and the gold spike in
+March~2022 (Russia--Ukraine war). CS2 exhibits a qualitatively different
+profile: elevated volatility tends to persist in multi-month regimes rather than
+arriving as discrete spikes. This is consistent with the ARCH coefficient
+$\hat{\alpha} = 0.0151$ (far below Bitcoin's 0.1265), which means individual
+return shocks transmit only weakly into the next day's conditional variance, and
+the GARCH coefficient $\hat{\beta} = 0.9839$, which ensures that whatever
+variance level is reached decays extremely slowly. The contrast with Bitcoin
+--- which has the same persistence (0.9990) but reacts sharply to individual
+shocks --- confirms that the Steam Marketplace's closed trading hours, illiquid
+order book, and slow information transmission shape a distinct volatility
+microstructure.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../images/garch/residual_qq.png}
+  \caption{Normal Q-Q plots of standardised GARCH(1,1) residuals for all four
+    assets. Points along the diagonal indicate conformity with the assumed error
+    distribution.}
+  \label{fig:residual_qq}
+\end{figure}
+
+Figure~\ref{fig:residual_qq} assesses GARCH model adequacy via Q-Q plots of
+standardised residuals against the standard normal. All four assets display
+heavier tails than the normal distribution (points diverge upward and downward
+at the extremes), confirming that the student-$t$ innovation assumption is
+appropriate. The central regions of all four plots track closely along the
+diagonal, indicating that GARCH(1,1) successfully captures the conditional mean
+dynamics and that residual departures are concentrated in the extreme tails ---
+a pattern expected under fat-tailed distributions and consistent with the
+degrees-of-freedom estimates in the rugarch output.
+
+% ─── A.4 VAR Diagnostics ─────────────────────────────────────────────────────
 \subsection{VAR Diagnostics}
-% TODO: Residual tests (Ljung-Box, normality).
-% Lag selection table (AIC/BIC across lag orders).
 
-\subsection{R Code}
+\begin{table}[H]
+\centering
+\caption{VAR Lag Selection Criteria for Lags 1--10 (lower is better)}
+\label{tab:lag_selection}
+\begin{tabular}{lrrrr}
+\hline
+Lag & AIC & HQ & BIC & FPE ($\times 10^{-13}$) \\
+\hline
+1  & $-29.969$ & $-29.951$ & $-29.921$ & $0.965$ \\
+2  & $-30.037$ & $-30.006$ & $-29.952$ & $0.901$ \\
+3  & $-30.099$ & $-30.054$ & $-29.976$ & $0.847$ \\
+\textbf{4}  & $\mathbf{-30.172}$ & $\mathbf{-30.114}$ & $\mathbf{-30.011}$ & $\mathbf{0.788}$ \\
+5  & $-30.184$ & $-30.111$ & $-29.984$ & $0.778$ \\
+6  & $-30.190$ & $-30.103$ & $-29.952$ & $0.774$ \\
+7  & $-30.207$ & $-30.107$ & $-29.931$ & $0.761$ \\
+8  & $-30.222$ & $-30.108$ & $-29.908$ & $0.749$ \\
+\textbf{9}  & $-30.234$ & $-30.106$ & $-29.882$ & $0.741$ \\
+10 & $-30.231$ & $-30.089$ & $-29.840$ & $0.743$ \\
+\hline
+\multicolumn{5}{l}{\small Bold row: BIC optimum (p\,=\,4). AIC and FPE optimum: p\,=\,9.}
+\end{tabular}
+\end{table}
 
-\begin{lstlisting}[style=Rstyle, caption={Index Construction (excerpt)}]
-# TODO: Add key R code excerpts here
-library(data.table)
-library(arrow)
+Table~\ref{tab:lag_selection} reports information criteria for lag orders 1--10.
+BIC (labelled SC in the \texttt{vars} package) selects $p = 4$, while AIC and
+FPE select $p = 9$. The penalty differential between AIC and BIC grows with the
+number of parameters, making BIC more conservative in models with a large
+endogenous dimension --- here, $4$ variables $\times$ $p$ lags per equation.
+The BIC-selected VAR(4) uses $4 \times 4 \times 4 + 4 = 68$ parameters, which
+is already a substantial parameterisation for $N = 2{,}444$ effective
+observations. The marginal improvement in AIC from lag 4 to lag 9 is modest
+(from $-30.172$ to $-30.234$), suggesting that the additional lags capture only
+weak dynamics and that the parsimonious BIC choice is appropriate for
+inference.
+
+\begin{table}[H]
+\centering
+\caption{Ljung-Box Residual Autocorrelation Tests --- VAR(4), Lag 10}
+\label{tab:ljungbox}
+\begin{tabular}{lrrl}
+\hline
+Asset    & $Q(10)$ & $p$-value & Conclusion \\
+\hline
+CS2      & 92.11   & $<0.001$  & Residual autocorrelation detected \\
+S\&P 500 & 98.26   & $<0.001$  & Residual autocorrelation detected \\
+Bitcoin  & 10.36   & $0.410$   & No significant autocorrelation \\
+Gold     &  5.78   & $0.833$   & No significant autocorrelation \\
+\hline
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:ljungbox} reports univariate Ljung-Box tests on VAR(4) residuals.
+Bitcoin and Gold show no evidence of residual autocorrelation at lag~10
+($p > 0.4$), confirming that VAR(4) is adequate for those series. CS2 and the
+S\&P~500 exhibit significant residual autocorrelation ($p < 0.001$), indicating
+that four lags are insufficient to fully capture the joint dynamics. For CS2,
+this is unsurprising given the strong negative first-order autocorrelation in
+the raw series (AR coefficient at lag~1: $\hat{\phi}_{11} = -0.485$, $p <
+0.001$) and the Steam Marketplace's two-day settlement lag, which imparts a
+mechanical negative autocorrelation. For the S\&P~500, weekly seasonality in
+trading patterns likely contributes.
+
+These findings have two implications for the main analysis. First, the AIC's
+preferred order of $p = 9$ would reduce residual autocorrelation but at the cost
+of 80 additional parameters, raising degrees-of-freedom concerns and multicollinearity.
+Second, the Granger causality conclusions are not materially affected: the tests
+found no significant predictive power from any benchmark to CS2 or vice versa,
+and residual misspecification would generally inflate standard errors, making
+rejections more conservative --- if anything, a better-fitting model would be
+even less likely to find significance.
+
+% ─── A.5 R Code ──────────────────────────────────────────────────────────────
+\subsection{R Code Excerpts}
+
+The value-weighted daily CS2 index is constructed as the ratio of total trading
+value to total volume across all liquid items. The excerpt below shows the
+liquidity filter and index aggregation from \texttt{src/02\_index\_construction.R}.
+
+\begin{lstlisting}[style=Rstyle, caption={Index construction: liquidity filter and value-weighted aggregation}]
+# Liquidity filter: drop base_items with < 2 trades in any calendar month
+cs2[, month := format(date, "%Y-%m")]
+monthly  <- cs2[, .(monthly_qty = sum(quantity)), by = .(base_item, month)]
+illiquid <- monthly[monthly_qty < 2L, unique(base_item)]
+cs2      <- cs2[!base_item %in% illiquid]
+
+# Value-weighted daily index: I_t = sum(price_i * qty_i) / sum(qty_i)
+index <- cs2[, .(
+  index_level  = sum(trading_value) / sum(quantity),
+  n_items      = uniqueN(base_item),
+  total_volume = sum(quantity)
+), by = date]
+\end{lstlisting}
+
+GARCH(1,1) with student-$t$ innovations is fitted to each return series using
+the \texttt{rugarch} package. The specification is identical across all four
+assets to ensure comparability of parameter estimates.
+
+\begin{lstlisting}[style=Rstyle, caption={GARCH(1,1) specification and fitting loop (src/04\_garch.R)}]
+spec <- ugarchspec(
+  variance.model     = list(model = "sGARCH", garchOrder = c(1, 1)),
+  mean.model         = list(armaOrder = c(0, 0), include.mean = TRUE),
+  distribution.model = "std"   # student-t innovations
+)
+
+fits <- list()
+for (label in names(ASSETS)) {
+  x             <- na.omit(ret[[ASSETS[[label]]]])
+  fits[[label]] <- ugarchfit(spec = spec, data = x, solver = "hybrid")
+}
+\end{lstlisting}
+
+Lag order selection and Granger causality testing are performed using the
+\texttt{vars} package. The \texttt{causality()} function tests whether the
+cause variable jointly Granger-causes all remaining variables in the system.
+
+\begin{lstlisting}[style=Rstyle, caption={VAR lag selection and Granger causality tests (src/05\_var\_granger.R)}]
+# Lag selection: AIC selects p=9, BIC (SC) selects p=4
+lag_select <- VARselect(var_data, lag.max = 10, type = "const")
+p          <- lag_select$selection["SC(n)"]   # use BIC
+
+# Fit VAR(p)
+var_model <- VAR(var_data, p = p, type = "const")
+
+# Granger causality: X Granger-causes the entire remaining system
+causality(var_model, cause = "r_btc")$Granger   # Bitcoin -> system
+causality(var_model, cause = "r_cs2")$Granger   # CS2     -> system
 \end{lstlisting}

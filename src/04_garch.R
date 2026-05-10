@@ -98,3 +98,18 @@ ggsave(here("images", "garch", "conditional_volatility.png"),
        p_vol, width = 10, height = 9, dpi = 150)
 
 message("\nPlot saved to images/garch/conditional_volatility.png")
+
+# ── Standardised residuals Q-Q plots ─────────────────────────────────────────
+
+png(here("images", "garch", "residual_qq.png"),
+    width = 1200, height = 800, res = 150)
+par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
+for (label in names(fits)) {
+  std_resid <- as.numeric(residuals(fits[[label]], standardize = TRUE))
+  qqnorm(std_resid, main = paste("Std. Residuals Q-Q —", label),
+         cex.main = 0.85, pch = 16, cex = 0.4, col = "steelblue")
+  qqline(std_resid, col = "red", lwd = 1.5)
+}
+dev.off()
+
+message("Plot saved to images/garch/residual_qq.png")

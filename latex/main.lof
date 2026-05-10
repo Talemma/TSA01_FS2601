@@ -1,0 +1,8 @@
+\babel@toc {english}{}\relax 
+\contentsline {figure}{\numberline {1}{\ignorespaces Normalised price levels --- CS2 index, S\&P~500, Bitcoin, and Gold (2013--2024, rebased to 100 at start of common sample; log scale).}}{8}{figure.caption.3}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Daily log returns --- CS2 index, S\&P~500, Bitcoin, and Gold (2013--2024). CS2 and Bitcoin exhibit substantially wider return swings than the S\&P~500 and Gold throughout the sample.}}{9}{figure.caption.4}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Autocorrelation (ACF) and Partial Autocorrelation (PACF) of daily log returns for all four assets at up to 30 lags.}}{13}{figure.caption.7}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Empirical return distributions (histogram) overlaid with a fitted normal curve (red) for all four assets.}}{14}{figure.caption.8}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Distribution of trading frequency per CS2 item (number of days with at least one recorded transaction).}}{15}{figure.caption.10}%
+\contentsline {figure}{\numberline {6}{\ignorespaces GARCH(1,1) conditional volatility (annualised, \%) for all four assets, August 2014 to June 2024.}}{16}{figure.caption.11}%
+\contentsline {figure}{\numberline {7}{\ignorespaces Normal Q-Q plots of standardised GARCH(1,1) residuals for all four assets. Points along the diagonal indicate conformity with the assumed error distribution.}}{17}{figure.caption.12}%

@@ -161,6 +161,25 @@ for (col in c("r_cs2", "r_sp500", "r_btc", "r_gold")) {
 }
 dev.off()
 
+# 5. Return distribution histograms with normal overlay (per asset)
+norm_curves <- returns_long[, {
+  x_seq <- seq(min(return, na.rm = TRUE), max(return, na.rm = TRUE), length.out = 300)
+  .(x = x_seq, y = dnorm(x_seq, mean(return, na.rm = TRUE), sd(return, na.rm = TRUE)))
+}, by = Asset]
+
+p_dist <- ggplot(returns_long, aes(x = return)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 60,
+                 fill = "steelblue", colour = "white", linewidth = 0.1) +
+  geom_line(data = norm_curves, aes(x = x, y = y),
+            colour = "red", linewidth = 0.7, inherit.aes = FALSE) +
+  facet_wrap(~Asset, scales = "free", ncol = 2) +
+  labs(x = "Log return", y = "Density",
+       title = "Return Distributions with Normal Overlay (red)") +
+  theme_minimal(base_size = 10)
+
+ggsave(here("images", "eda", "distributions.png"),
+       p_dist, width = 8, height = 5, dpi = 150)
+
 message("\nAll plots saved to images/eda/")
 
 # ── Save aligned returns for downstream scripts ───────────────────────────────
