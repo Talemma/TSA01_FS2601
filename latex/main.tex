@@ -31,6 +31,7 @@
 }
 
 % ─── Header / Footer ─────────────────────────────────────────────────────────
+\setlength{\headheight}{14pt}
 \pagestyle{fancy}
 \fancyhf{}
 \rhead{\small TSA01\_FS2601}
@@ -115,6 +116,15 @@ diversification benefits for financial investors.
 \tableofcontents
 \newpage
 
+\listoffigures
+\addcontentsline{toc}{section}{List of Figures}
+\listoftables
+\addcontentsline{toc}{section}{List of Tables}
+\newpage
+
+\input{chapters/07_abbreviations}
+\newpage
+
 % ─── Chapters ────────────────────────────────────────────────────────────────
 \input{chapters/01_introduction}
 \input{chapters/02_literature}
@@ -129,5 +139,9 @@ diversification benefits for financial investors.
 % ─── Appendix ────────────────────────────────────────────────────────────────
 \newpage
 \input{chapters/06_appendix}
+
+% ─── Declaration of Authorship ───────────────────────────────────────────────
+\newpage
+\input{chapters/08_declaration}
 
 \end{document}

@@ -1,0 +1,86 @@
+% ═════════════════════════════════════════════════════════════════════════════
+\section*{List of Abbreviations}
+\addcontentsline{toc}{section}{List of Abbreviations}
+\label{sec:abbreviations}
+
+\begin{tabular}{p{3.5cm} p{10cm}}
+  \textbf{ACF}   & Autocorrelation Function \\[4pt]
+  \textbf{ADF}   & Augmented Dickey-Fuller (unit root test) \\[4pt]
+  \textbf{AIC}   & Akaike Information Criterion \\[4pt]
+  \textbf{BIC}   & Bayesian Information Criterion (Schwarz Criterion, SC) \\[4pt]
+  \textbf{CS2}   & Counter-Strike 2 \\[4pt]
+  \textbf{FPE}   & Final Prediction Error \\[4pt]
+  \textbf{GARCH} & Generalised Autoregressive Conditional Heteroskedasticity \\[4pt]
+  \textbf{HQ}    & Hannan-Quinn Information Criterion \\[4pt]
+  \textbf{PACF}  & Partial Autocorrelation Function \\[4pt]
+  \textbf{VAR}   & Vector Autoregression \\[4pt]
+  \textbf{VWAP}  & Volume-Weighted Average Price \\[4pt]
+\end{tabular}
+
+\bigskip
+
+\section*{Glossary}
+\addcontentsline{toc}{section}{Glossary}
+\label{sec:glossary}
+
+\begin{description}
+  \item[CS2 (Counter-Strike 2)]
+    Valve's tactical first-person shooter and the successor to Counter-Strike:
+    Global Offensive (CS:GO). Launched in 2023, it operates the same Steam
+    Marketplace ecosystem established in 2013, through which cosmetic items are
+    traded at real-money prices.
+
+  \item[Skin]
+    A purely cosmetic weapon or equipment modification in CS2 with no gameplay
+    effect. Skins are bought, sold, and stored as digital assets on the Steam
+    Marketplace and constitute the asset class studied in this paper.
+
+  \item[StatTrak]
+    A skin variant equipped with an electronic counter that tracks the number
+    of in-game kills. StatTrak skins command a persistent price premium
+    relative to their non-StatTrak counterparts and are excluded from the index
+    to avoid confounding price signals unrelated to market-wide demand.
+
+  \item[Steam Marketplace]
+    Valve Corporation's open secondary market integrated into the Steam gaming
+    platform, through which users buy and sell in-game items at prices set by
+    supply and demand. Unlike closed in-game economies, the Steam Marketplace
+    allows freely negotiated prices denominated in real currency, making it
+    amenable to standard financial time series analysis.
+
+  \item[Value-weighted index]
+    A price index in which each constituent's contribution to the index level
+    is proportional to its trading volume. Formally, $I_t =
+    \sum_i p_{it} v_{it} / \sum_i v_{it}$, where $p_{it}$ is the
+    volume-weighted average price of item $i$ on day $t$ and $v_{it}$ is its
+    trading volume. Analogous to market-capitalisation weighting in equity
+    indices, this ensures that heavily traded items drive the index level.
+
+  \item[Log return]
+    The continuously compounded return defined as $r_t = \ln(P_t / P_{t-1})$.
+    Preferred over simple returns because log returns are approximately
+    additive over time, yield a stationary series when prices are
+    non-stationary, and are symmetric around zero for up and down moves of
+    equal magnitude.
+
+  \item[Granger causality]
+    A statistical concept introduced by \citeauthor{granger1969causal}
+    \cite{granger1969causal}: variable $X$ Granger-causes $Y$ if past values of
+    $X$ improve forecasts of $Y$ beyond what is achievable using $Y$'s own
+    history alone. Granger causality is a statement about predictability, not
+    structural or physical causation.
+
+  \item[Liquidity filter]
+    A selection criterion that excludes assets with insufficient trading
+    activity from an index. In this paper, any base item recording fewer than
+    two transactions in any calendar month is excluded, analogous to the SIX
+    Swiss Exchange minimum turnover requirement for equity index inclusion
+    \cite{six2024indexcriteria}.
+
+  \item[Persistence ($\hat{\alpha} + \hat{\beta}$)]
+    In a GARCH(1,1) model, the sum of the ARCH coefficient $\hat{\alpha}$ and
+    the GARCH coefficient $\hat{\beta}$. Values close to unity indicate slow
+    mean-reversion of conditional variance: a volatility shock today affects
+    expected variance far into the future. A value of exactly 1 defines an
+    integrated GARCH (IGARCH) process.
+\end{description}

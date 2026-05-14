@@ -124,6 +124,16 @@ p_levels <- ggplot(levels_long, aes(x = date, y = value, colour = Asset)) +
 
 ggsave(here("images", "eda", "levels.png"), p_levels, width = 10, height = 4, dpi = 150)
 
+# 1b. Index levels — CS2, S&P 500, Gold only (Bitcoin excluded for scale)
+levels_no_btc <- levels_long[Asset != "Bitcoin"]
+p_levels_no_btc <- ggplot(levels_no_btc, aes(x = date, y = value, colour = Asset)) +
+  geom_line(linewidth = 0.5) +
+  scale_y_log10() +
+  labs(title = "Normalised Price Levels — ex-Bitcoin (base = 100, log scale)",
+       x = NULL, y = "Index (base 100, log scale)", colour = NULL) +
+  theme(legend.position = "bottom")
+ggsave(here("images", "eda", "levels_no_btc.png"), p_levels_no_btc, width = 10, height = 4, dpi = 150)
+
 # 2. Log return series
 returns_long <- melt(
   ret[, .(date, CS2 = r_cs2, `S&P 500` = r_sp500, Bitcoin = r_btc, Gold = r_gold)],
@@ -160,6 +170,25 @@ for (col in c("r_cs2", "r_sp500", "r_btc", "r_gold")) {
   pacf(na.omit(ret[[col]]), main = paste("PACF —", label), lag.max = 30)
 }
 dev.off()
+
+# 5. Return distribution histograms with normal overlay (per asset)
+norm_curves <- returns_long[, {
+  x_seq <- seq(min(return, na.rm = TRUE), max(return, na.rm = TRUE), length.out = 300)
+  .(x = x_seq, y = dnorm(x_seq, mean(return, na.rm = TRUE), sd(return, na.rm = TRUE)))
+}, by = Asset]
+
+p_dist <- ggplot(returns_long, aes(x = return)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 60,
+                 fill = "steelblue", colour = "white", linewidth = 0.1) +
+  geom_line(data = norm_curves, aes(x = x, y = y),
+            colour = "red", linewidth = 0.7, inherit.aes = FALSE) +
+  facet_wrap(~Asset, scales = "free", ncol = 2) +
+  labs(x = "Log return", y = "Density",
+       title = "Return Distributions with Normal Overlay (red)") +
+  theme_minimal(base_size = 10)
+
+ggsave(here("images", "eda", "distributions.png"),
+       p_dist, width = 8, height = 5, dpi = 150)
 
 message("\nAll plots saved to images/eda/")
 

@@ -30,7 +30,13 @@ message(sprintf("Loaded %s rows, %s items",
 
 # ── Step 1: Filter to wearables, exclude StatTrak and Souvenir ────────────────
 
+n_raw_items <- uniqueN(cs2$item_name)
+n_raw_base  <- uniqueN(cs2$base_item)
+
 cs2 <- cs2[item_category %in% WEARABLE_CATS & !is_stattrak & !is_souvenir]
+
+n_wear_items <- uniqueN(cs2$item_name)
+n_wear_base  <- uniqueN(cs2$base_item)
 
 message(sprintf("After wearable filter:   %s rows, %s items",
                 format(nrow(cs2), big.mark = ","),
@@ -47,20 +53,26 @@ illiquid <- monthly[monthly_qty < LIQUIDITY_MIN, unique(base_item)]
 cs2      <- cs2[!base_item %in% illiquid]
 cs2[, month := NULL]
 
+n_liquid_base <- uniqueN(cs2$base_item)
+
 message(sprintf("After liquidity filter:  %s rows, %s base_items",
                 format(nrow(cs2), big.mark = ","),
-                format(uniqueN(cs2$base_item), big.mark = ",")))
+                format(n_liquid_base, big.mark = ",")))
+
+# Save filter funnel for appendix
+filter_stats <- data.table(
+  Stage         = c("Raw items (all categories, all variants)",
+                    "After wearable categories + StatTrak/Souvenir exclusion",
+                    "After liquidity filter (≥2 trades/month in every month)"),
+  Item_variants = c(n_raw_items, n_wear_items, NA_integer_),
+  Base_items    = c(n_raw_base,  n_wear_base,  n_liquid_base)
+)
+fwrite(filter_stats, here("data", "processed", "filter_stats.csv"))
 
 # ── Step 3: Value-weighted index ──────────────────────────────────────────────
 # I_t = sum(price_i * qty_i) / sum(qty_i)
 #      = sum(trading_value_i) / sum(qty_i)
 
-
-index <- cs2[quantity > 0, .(
-  index_level  = sum(trading_value) / sum(quantity),
-  n_items      = uniqueN(base_item),
-  total_volume = sum(quantity)
-), by = date]
 
 index <- cs2[, .(
   index_level  = sum(trading_value) / sum(quantity),

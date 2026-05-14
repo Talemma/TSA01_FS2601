@@ -1,0 +1,8 @@
+\babel@toc {english}{}\relax 
+\contentsline {table}{\numberline {1}{\ignorespaces Descriptive Statistics --- Daily Log Returns}}{8}{table.caption.1}%
+\contentsline {table}{\numberline {2}{\ignorespaces Correlation Matrix --- Daily Log Returns}}{8}{table.caption.2}%
+\contentsline {table}{\numberline {3}{\ignorespaces GARCH(1,1) Estimates}}{10}{table.caption.5}%
+\contentsline {table}{\numberline {4}{\ignorespaces Granger Causality Tests --- VAR(4)}}{10}{table.caption.6}%
+\contentsline {table}{\numberline {5}{\ignorespaces Item Filter Funnel --- CS2 Index Construction}}{14}{table.caption.9}%
+\contentsline {table}{\numberline {6}{\ignorespaces VAR Lag Selection Criteria for Lags 1--10 (lower is better)}}{18}{table.caption.13}%
+\contentsline {table}{\numberline {7}{\ignorespaces Ljung-Box Residual Autocorrelation Tests --- VAR(4), Lag 10}}{18}{table.caption.14}%
