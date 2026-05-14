@@ -124,6 +124,16 @@ p_levels <- ggplot(levels_long, aes(x = date, y = value, colour = Asset)) +
 
 ggsave(here("images", "eda", "levels.png"), p_levels, width = 10, height = 4, dpi = 150)
 
+# 1b. Index levels — CS2, S&P 500, Gold only (Bitcoin excluded for scale)
+levels_no_btc <- levels_long[Asset != "Bitcoin"]
+p_levels_no_btc <- ggplot(levels_no_btc, aes(x = date, y = value, colour = Asset)) +
+  geom_line(linewidth = 0.5) +
+  scale_y_log10() +
+  labs(title = "Normalised Price Levels — ex-Bitcoin (base = 100, log scale)",
+       x = NULL, y = "Index (base 100, log scale)", colour = NULL) +
+  theme(legend.position = "bottom")
+ggsave(here("images", "eda", "levels_no_btc.png"), p_levels_no_btc, width = 10, height = 4, dpi = 150)
+
 # 2. Log return series
 returns_long <- melt(
   ret[, .(date, CS2 = r_cs2, `S&P 500` = r_sp500, Bitcoin = r_btc, Gold = r_gold)],
